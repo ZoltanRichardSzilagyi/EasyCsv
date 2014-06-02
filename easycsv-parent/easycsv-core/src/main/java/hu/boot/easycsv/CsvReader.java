@@ -1,5 +1,6 @@
 package hu.boot.easycsv;
 
+import hu.boot.easycsv.cellprocessor.CellProcessorFactory;
 import hu.boot.easycsv.configuration.CsvBeanMapper;
 import hu.boot.easycsv.configuration.CsvBeanMapping;
 import hu.boot.easycsv.configuration.CsvReaderConfiguration;
@@ -15,6 +16,8 @@ import java.util.List;
 import org.apache.commons.io.input.NullInputStream;
 
 public class CsvReader<B> implements Reader<B> {
+
+	private final CellProcessorFactory cellProcessorFactory = new CellProcessorFactory();
 
 	@Override
 	public CsvReadResult<B> convert(File file, Class<B> beanType)
@@ -93,7 +96,10 @@ public class CsvReader<B> implements Reader<B> {
 
 	private CsvReadResult<B> processInputData(InputStream data,
 			CsvReaderConfiguration configuration) throws EasyCsvException {
-		CsvParser<B> parser = new CsvParser<B>(data, configuration);
+		CsvParser.CsvParserBuilder<B> csvParserBuilder = new CsvParser.CsvParserBuilder<B>();
+		CsvParser<B> parser = csvParserBuilder
+				.setCellProcessorFactory(cellProcessorFactory)
+				.setConfiguration(configuration).setData(data).build();
 		return parser.parse();
 	}
 

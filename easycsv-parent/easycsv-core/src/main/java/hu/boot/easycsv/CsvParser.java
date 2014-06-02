@@ -15,7 +15,7 @@ import java.io.InputStream;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 
-public class CsvParser<B> {
+final class CsvParser<B> {
 
 	private final CsvReaderConfiguration configuration;
 
@@ -25,17 +25,19 @@ public class CsvParser<B> {
 
 	private final String[] csvHeaderColumns;
 
-	private final CellProcessorFactory cellProcessorFactory = new CellProcessorFactory();
+	private final CellProcessorFactory cellProcessorFactory;
 
 	private final StreamReader csvStreamReader;
 
 	private Integer lineNumber = 0;
 
-	public CsvParser(InputStream data, CsvReaderConfiguration configuration) {
-		this.configuration = configuration;
-		csvStreamReader = new CsvStreamReader(data);
-		mapping = configuration.getCsvBeanMapping();
+	public CsvParser(CsvParserBuilder<B> builder) {
+		configuration = builder.configuration;
+		cellProcessorFactory = builder.cellProcessorFactory;
+		csvStreamReader = new CsvStreamReader(builder.data);
 		csvHeaderColumns = configuration.getCsvHeaderColumns();
+		mapping = configuration.getCsvBeanMapping();
+
 	}
 
 	public CsvReadResult<B> parse() throws EasyCsvException {
@@ -137,6 +139,35 @@ public class CsvParser<B> {
 
 	private void closeInputs() {
 		csvStreamReader.close();
+	}
+
+	public static class CsvParserBuilder<B> {
+		private InputStream data;
+
+		private CellProcessorFactory cellProcessorFactory;
+
+		private CsvReaderConfiguration configuration;
+
+		public CsvParserBuilder<B> setData(InputStream data) {
+			this.data = data;
+			return this;
+		}
+
+		public CsvParserBuilder<B> setCellProcessorFactory(
+				CellProcessorFactory cellProcessorFactory) {
+			this.cellProcessorFactory = cellProcessorFactory;
+			return this;
+		}
+
+		public CsvParserBuilder<B> setConfiguration(
+				CsvReaderConfiguration configuration) {
+			this.configuration = configuration;
+			return this;
+		}
+
+		public CsvParser<B> build() {
+			return new CsvParser<B>(this);
+		}
 	}
 
 }
