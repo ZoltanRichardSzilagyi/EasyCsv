@@ -6,7 +6,7 @@ import hu.boot.easycsv.configuration.CsvBeanMapping;
 import hu.boot.easycsv.configuration.CsvColumnBeanFieldMapping;
 import hu.boot.easycsv.configuration.CsvReaderConfiguration;
 import hu.boot.easycsv.error.ErrorMessages;
-import hu.boot.easycsv.processor.LineProcessor;
+import hu.boot.easycsv.processor.RowProcessor;
 import hu.boot.easycsv.stream.StreamReader;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class CsvParser<B> {
 			if (checkStreamIsEmpty()) {
 				return result;
 			}
-			parseLines();
+			parseRows();
 		} catch (Exception e) {
 			throw new EasyCsvException("Unable to parse source data.", e);
 		} finally {
@@ -61,13 +61,13 @@ public class CsvParser<B> {
 		return false;
 	}
 
-	private void parseLines() throws Exception {
-		String line = null;
+	private void parseRows() throws Exception {
+		String row = null;
 		readHeaderIfNecessary();
-		while ((line = csvStreamReader.readNextRow()) != null) {
+		while ((row = csvStreamReader.readNextRow()) != null) {
 			lineNumber++;
-			runLineProcessors(line);
-			processRow(line);
+			runRowProcessors(row);
+			processRow(row);
 
 		}
 	}
@@ -78,12 +78,12 @@ public class CsvParser<B> {
 		}
 	}
 
-	private void runLineProcessors(String line) {
-		if (configuration.getLineProcessors().size() == 0) {
+	private void runRowProcessors(String row) {
+		if (configuration.getRowProcessors().size() == 0) {
 			return;
 		}
-		for (LineProcessor lineProcessor : configuration.getLineProcessors()) {
-			line = lineProcessor.processLine(line);
+		for (RowProcessor rowProcessor : configuration.getRowProcessors()) {
+			row = rowProcessor.process(row);
 		}
 	}
 

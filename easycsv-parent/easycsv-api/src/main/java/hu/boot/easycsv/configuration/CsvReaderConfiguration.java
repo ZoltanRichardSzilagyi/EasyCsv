@@ -1,6 +1,6 @@
 package hu.boot.easycsv.configuration;
 
-import hu.boot.easycsv.processor.LineProcessor;
+import hu.boot.easycsv.processor.RowProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ public class CsvReaderConfiguration extends AbstractCsvMappingConfiguration {
 
 	private String columnSeparator = ",";
 
-	private List<LineProcessor> lineProcessors = new ArrayList<LineProcessor>();
+	private List<RowProcessor> rowProcessors = new ArrayList<RowProcessor>();
 
 	public CsvReaderConfiguration() {
 	}
@@ -36,12 +36,12 @@ public class CsvReaderConfiguration extends AbstractCsvMappingConfiguration {
 		this.containsHeader = containsHeader;
 	}
 
-	public List<LineProcessor> getLineProcessors() {
-		return lineProcessors;
+	public List<RowProcessor> getRowProcessors() {
+		return rowProcessors;
 	}
 
-	public void addLineProcessor(LineProcessor lineProcessor) {
-		lineProcessors.add(lineProcessor);
+	public void addRowProcessor(RowProcessor rowProcessor) {
+		rowProcessors.add(rowProcessor);
 	}
 
 }
