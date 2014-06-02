@@ -92,21 +92,53 @@ final class CsvParser<B> {
 
 	private void processRow(String row) throws Exception {
 		String[] cells = splitRow(row);
-		int index = 0;
-		if (!isRowValid(cells)) {
-			return;
+		if (isRowValid(cells)) {
+			processRow(cells);
 		}
+	}
+
+	private void processRow(String[] cells) throws Exception {
+		Integer index = 0;
 		B bean = createBeanInstance();
 		for (String cellValue : cells) {
-			String columnName = csvHeaderColumns[index];
-			CsvColumnBeanFieldMapping fieldMapping = mapping
-					.getMappingByColumnName(columnName);
-			String fieldName = fieldMapping.getField().getName();
-			Object processedValue = convertRawValue(fieldMapping, cellValue);
-			PropertyUtils.setProperty(bean, fieldName, processedValue);
+			cellValue = parseCellValue(cellValue);
+			bean = processRow(bean, index, cellValue);
 			index++;
 		}
 		result.addBean(bean);
+	}
+
+	private String parseCellValue(String cellValue) {
+		String trimmedCell = StringUtils.trimToEmpty(cellValue);
+		if (isCellValueQuoted(trimmedCell)) {
+			trimmedCell = StringUtils.substringAfter(trimmedCell,
+					configuration.getQuoteChar());
+			trimmedCell = StringUtils.substringBeforeLast(trimmedCell,
+					configuration.getQuoteChar());
+			return trimmedCell;
+		}
+		return cellValue;
+
+	}
+
+	private boolean isCellValueQuoted(String cellValue) {
+		if (StringUtils.startsWith(cellValue, configuration.getQuoteChar())
+				&& StringUtils
+						.endsWith(cellValue, configuration.getQuoteChar())) {
+			return true;
+		}
+		return false;
+	}
+
+	private B processRow(B bean, Integer index, String cellValue)
+			throws Exception {
+		String columnName = csvHeaderColumns[index];
+		CsvColumnBeanFieldMapping fieldMapping = mapping
+				.getMappingByColumnName(columnName);
+		String fieldName = fieldMapping.getField().getName();
+		Object processedValue = convertRawValue(fieldMapping, cellValue);
+		PropertyUtils.setProperty(bean, fieldName, processedValue);
+		return bean;
 	}
 
 	private Boolean isRowValid(String[] cells) {
@@ -134,7 +166,7 @@ final class CsvParser<B> {
 
 	private String[] splitRow(String row) {
 		String[] lineValues = StringUtils.split(row,
-				configuration.getColumnSeparator());
+				configuration.getDelimiterChar());
 		return lineValues;
 	}
 

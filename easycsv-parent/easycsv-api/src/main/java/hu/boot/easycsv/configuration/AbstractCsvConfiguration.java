@@ -17,6 +17,10 @@ public abstract class AbstractCsvConfiguration implements
 
 	private String charset = CharEncoding.UTF_8;
 
+	private String delimiterChar = ",";
+
+	private String quoteChar = "\"";
+
 	public AbstractCsvConfiguration() {
 	}
 
@@ -64,6 +68,22 @@ public abstract class AbstractCsvConfiguration implements
 
 	public void setCharset(String charset) {
 		this.charset = charset;
+	}
+
+	public String getDelimiterChar() {
+		return delimiterChar;
+	}
+
+	public void setDelimiterChar(String delimiterChar) {
+		this.delimiterChar = delimiterChar;
+	}
+
+	public String getQuoteChar() {
+		return quoteChar;
+	}
+
+	public void setQuoteChar(String quoteChar) {
+		this.quoteChar = quoteChar;
 	}
 
 }

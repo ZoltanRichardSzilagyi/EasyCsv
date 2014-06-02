@@ -9,8 +9,6 @@ public class CsvReaderConfiguration extends AbstractCsvConfiguration {
 
 	private Boolean containsHeader = true;
 
-	private String columnSeparator = ",";
-
 	private List<RowProcessor> rowProcessors = new ArrayList<RowProcessor>();
 
 	public CsvReaderConfiguration() {
@@ -18,14 +16,6 @@ public class CsvReaderConfiguration extends AbstractCsvConfiguration {
 
 	public CsvReaderConfiguration(String[] csvHeaderColumns) {
 		super(csvHeaderColumns);
-	}
-
-	public String getColumnSeparator() {
-		return columnSeparator;
-	}
-
-	public void setColumnSeparator(String columnSeparator) {
-		this.columnSeparator = columnSeparator;
 	}
 
 	public Boolean getContainsHeader() {

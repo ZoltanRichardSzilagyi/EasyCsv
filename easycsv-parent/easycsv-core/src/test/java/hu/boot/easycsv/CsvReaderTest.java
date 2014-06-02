@@ -4,9 +4,13 @@ import hu.boot.easycsv.error.ErrorMessages;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.input.NullInputStream;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
@@ -80,7 +84,7 @@ public class CsvReaderTest {
 		DateTime dateTime = new DateTime();
 		sampleUser.setBirthDate(dateTime.toDate());
 
-		String data = "name,age" + "\r\n" + "john,28,"
+		String data = "name,age" + "\r\n" + "\"john\",28,"
 				+ dateTime.toString(ISODateTimeFormat.dateTime());
 
 		ByteArrayInputStream stream = new ByteArrayInputStream(data.getBytes());
@@ -94,4 +98,36 @@ public class CsvReaderTest {
 				readedUser.getBirthDate());
 	}
 
+	public void performanceTest() {
+		List<Order> orders = createOrder(10000);
+	}
+
+	private List<Order> createOrder(int ordersNum) {
+		List<Order> orders = new ArrayList<Order>(ordersNum);
+		for (int i = 0; i < ordersNum; i++) {
+			orders.add(createOrder());
+		}
+		return orders;
+	}
+
+	private Order createOrder() {
+		Order order = new Order();
+		order.setComment(getRandomString(120));
+		order.setCustomerFirstName(getRandomString(20));
+		order.setCustomerLastName(getRandomString(20));
+		order.setDelivered(true);
+		order.setDeliveryDate(new Date());
+		order.setOrderDate(new Date());
+		order.setOrderId(getRandomString(15));
+		order.setPrice(RandomUtils.nextInt(500, 10000));
+		order.setProduct(getRandomString(50));
+		order.setProductSerial(getRandomString(50));
+		return order;
+	}
+
+	private String getRandomString(int max) {
+		int value = RandomUtils.nextInt(5, max);
+		return RandomStringUtils.randomAlphabetic(value);
+
+	}
 }
