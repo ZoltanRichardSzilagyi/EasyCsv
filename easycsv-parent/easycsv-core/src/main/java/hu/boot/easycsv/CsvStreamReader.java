@@ -40,8 +40,7 @@ public class CsvStreamReader implements StreamReader {
 	}
 
 	@Override
-	public Boolean isEmpty() {
-		int available = data.available();
-		(available > 0) ? true : false; 
+	public Boolean isEmpty() throws IOException {
+		return (data.available() > 0) ? false : true;
 	}
 }

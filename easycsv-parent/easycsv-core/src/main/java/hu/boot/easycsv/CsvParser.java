@@ -7,22 +7,17 @@ import hu.boot.easycsv.configuration.CsvColumnBeanFieldMapping;
 import hu.boot.easycsv.configuration.CsvReaderConfiguration;
 import hu.boot.easycsv.error.ErrorMessages;
 import hu.boot.easycsv.processor.LineProcessor;
+import hu.boot.easycsv.stream.StreamReader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class CsvParser<B> {
-	// TODO customreader-> readLine, isEmpty, close...
-	private final InputStream data;
+
 	private final CsvReaderConfiguration configuration;
-	private final InputStreamReader reader;
-	private final BufferedReader bufferedReader;
 
 	private final CsvReadResult<B> result = new CsvReadResult<B>();
 
@@ -32,13 +27,13 @@ public class CsvParser<B> {
 
 	private final CellProcessorFactory cellProcessorFactory = new CellProcessorFactory();
 
+	private final StreamReader csvStreamReader;
+
 	private Integer lineNumber = 0;
 
 	public CsvParser(InputStream data, CsvReaderConfiguration configuration) {
-		this.data = data;
 		this.configuration = configuration;
-		reader = new InputStreamReader(data);
-		bufferedReader = new BufferedReader(reader);
+		csvStreamReader = new CsvStreamReader(data);
 		mapping = configuration.getCsvBeanMapping();
 		csvHeaderColumns = configuration.getCsvHeaderColumns();
 	}
@@ -58,7 +53,7 @@ public class CsvParser<B> {
 	}
 
 	private Boolean checkStreamIsEmpty() throws IOException {
-		if (data.available() == 0) {
+		if (csvStreamReader.isEmpty()) {
 			result.addError(ErrorMessages.EMPTY_CSV);
 			closeInputs();
 			return true;
@@ -69,7 +64,7 @@ public class CsvParser<B> {
 	private void parseLines() throws Exception {
 		String line = null;
 		readHeaderIfNecessary();
-		while ((line = bufferedReader.readLine()) != null) {
+		while ((line = csvStreamReader.readNextRow()) != null) {
 			lineNumber++;
 			runLineProcessors(line);
 			processRow(line);
@@ -79,7 +74,7 @@ public class CsvParser<B> {
 
 	private void readHeaderIfNecessary() throws IOException {
 		if (configuration.getContainsHeader()) {
-			bufferedReader.readLine();
+			csvStreamReader.readNextRow();
 		}
 	}
 
@@ -141,9 +136,7 @@ public class CsvParser<B> {
 	}
 
 	private void closeInputs() {
-		IOUtils.closeQuietly(bufferedReader);
-		IOUtils.closeQuietly(reader);
-		IOUtils.closeQuietly(data);
+		csvStreamReader.close();
 	}
 
 }
