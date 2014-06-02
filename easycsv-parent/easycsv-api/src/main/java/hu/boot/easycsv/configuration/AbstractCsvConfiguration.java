@@ -2,7 +2,9 @@ package hu.boot.easycsv.configuration;
 
 import java.io.InputStream;
 
-public abstract class AbstractCsvMappingConfiguration implements
+import org.apache.commons.lang3.CharEncoding;
+
+public abstract class AbstractCsvConfiguration implements
 		CsvMappingConfiguration {
 
 	private String[] csvHeaderColumns;
@@ -13,10 +15,12 @@ public abstract class AbstractCsvMappingConfiguration implements
 
 	private CsvBeanMapping csvBeanMapping = null;
 
-	public AbstractCsvMappingConfiguration() {
+	private String charset = CharEncoding.UTF_8;
+
+	public AbstractCsvConfiguration() {
 	}
 
-	public AbstractCsvMappingConfiguration(String[] csvHeaderColumns) {
+	public AbstractCsvConfiguration(String[] csvHeaderColumns) {
 		this.csvHeaderColumns = csvHeaderColumns;
 	}
 
@@ -52,6 +56,14 @@ public abstract class AbstractCsvMappingConfiguration implements
 
 	public void setCsvHeaderColumns(String[] csvHeaderColumns) {
 		this.csvHeaderColumns = csvHeaderColumns;
+	}
+
+	public String getCharset() {
+		return charset;
+	}
+
+	public void setCharset(String charset) {
+		this.charset = charset;
 	}
 
 }

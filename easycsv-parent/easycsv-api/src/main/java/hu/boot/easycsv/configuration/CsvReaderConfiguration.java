@@ -5,7 +5,7 @@ import hu.boot.easycsv.processor.RowProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CsvReaderConfiguration extends AbstractCsvMappingConfiguration {
+public class CsvReaderConfiguration extends AbstractCsvConfiguration {
 
 	private Boolean containsHeader = true;
 

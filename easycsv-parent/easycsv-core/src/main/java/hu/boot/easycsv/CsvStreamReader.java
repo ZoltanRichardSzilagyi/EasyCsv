@@ -16,7 +16,7 @@ public class CsvStreamReader implements StreamReader {
 
 	private final BufferedReader bufferedReader;
 
-	public CsvStreamReader(InputStream data) {
+	public CsvStreamReader(InputStream data, String charsetName) {
 		this.data = data;
 		reader = new InputStreamReader(data);
 		bufferedReader = new BufferedReader(reader);

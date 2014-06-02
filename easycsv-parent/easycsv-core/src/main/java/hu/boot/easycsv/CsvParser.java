@@ -34,7 +34,8 @@ final class CsvParser<B> {
 	public CsvParser(CsvParserBuilder<B> builder) {
 		configuration = builder.configuration;
 		cellProcessorFactory = builder.cellProcessorFactory;
-		csvStreamReader = new CsvStreamReader(builder.data);
+		csvStreamReader = new CsvStreamReader(builder.data,
+				configuration.getCharset());
 		csvHeaderColumns = configuration.getCsvHeaderColumns();
 		mapping = configuration.getCsvBeanMapping();
 

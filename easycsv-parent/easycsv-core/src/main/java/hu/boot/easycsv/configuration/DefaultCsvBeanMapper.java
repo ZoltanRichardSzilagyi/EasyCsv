@@ -7,9 +7,9 @@ import java.util.List;
 
 public class DefaultCsvBeanMapper implements CsvBeanMapper {
 
-	private AbstractCsvMappingConfiguration configuration;
+	private AbstractCsvConfiguration configuration;
 
-	public DefaultCsvBeanMapper(AbstractCsvMappingConfiguration configuration) {
+	public DefaultCsvBeanMapper(AbstractCsvConfiguration configuration) {
 		this.configuration = configuration;
 	}
 
