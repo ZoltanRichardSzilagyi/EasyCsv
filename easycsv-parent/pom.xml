@@ -15,7 +15,7 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.0</version>
+					<version>3.1</version>
 					<configuration>
 						<source>${java.version}</source>
 						<target>${java.version}</target>
@@ -47,9 +47,9 @@
 				<version>2.4</version>
 			</dependency>
 			<dependency>
-				<groupId>commons-collections</groupId>
-				<artifactId>commons-collections</artifactId>
-				<version>3.0</version>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-collections4</artifactId>
+				<version>4.0</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-beanutils</groupId>
@@ -66,6 +66,36 @@
 				<artifactId>reflections</artifactId>
 				<version>0.9.8</version>
 			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.7</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>1.7.7</version>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
+	
+	<profiles>
+		<profile>
+			<id>sonar</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<sonar.jdbc.url>jdbc:postgresql://127.0.0.1:5432/sonar</sonar.jdbc.url>
+				<sonar.jdbc.driver>org.postgresql.Driver</sonar.jdbc.driver>
+				<sonar.jdbc.username>sa</sonar.jdbc.username>
+				<sonar.jdbc.password>Aa123456</sonar.jdbc.password>
+
+				<sonar.host.url>http://localhost:9000</sonar.host.url>
+			</properties>
+		</profile>
+	</profiles>
+
 </project>

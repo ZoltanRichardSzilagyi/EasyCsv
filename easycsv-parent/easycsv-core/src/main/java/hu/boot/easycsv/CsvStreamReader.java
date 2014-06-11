@@ -8,8 +8,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CsvStreamReader implements StreamReader {
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(CsvStreamReader.class);
 
 	private final InputStream data;
 	private final InputStreamReader reader;
@@ -23,13 +28,8 @@ public class CsvStreamReader implements StreamReader {
 	}
 
 	@Override
-	public String readNextRow() {
-		try {
-			return bufferedReader.readLine();
-		} catch (IOException e) {
-			// TODO logger
-			return null;
-		}
+	public String readNextRow() throws IOException {
+		return bufferedReader.readLine();
 	}
 
 	@Override
@@ -40,7 +40,13 @@ public class CsvStreamReader implements StreamReader {
 	}
 
 	@Override
-	public Boolean isEmpty() throws IOException {
-		return (data.available() > 0) ? false : true;
+	public Boolean isEmpty() {
+		int available = 0;
+		try {
+			available = data.available();
+		} catch (final IOException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+		return (available > 0) ? false : true;
 	}
 }

@@ -14,8 +14,13 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.io.input.NullInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CsvReader<B> implements Reader<B> {
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(CsvReader.class);
 
 	private final CellProcessorFactory cellProcessorFactory = new CellProcessorFactory();
 
@@ -39,7 +44,7 @@ public class CsvReader<B> implements Reader<B> {
 	}
 
 	private CsvReaderConfiguration createDefaultConfiguration(Class<B> beanType) {
-		CsvReaderConfiguration configuration = new CsvReaderConfiguration();
+		final CsvReaderConfiguration configuration = new CsvReaderConfiguration();
 		configuration.setBeanType(beanType);
 		return configuration;
 	}
@@ -48,7 +53,7 @@ public class CsvReader<B> implements Reader<B> {
 	public CsvReadResult<B> convert(File file,
 			CsvReaderConfiguration configuration) throws EasyCsvException {
 		CsvReadResult<B> result = null;
-		InputStream fileInputStream = getFileInputStream(file);
+		final InputStream fileInputStream = getFileInputStream(file);
 		result = convert(fileInputStream, configuration);
 		if (file == null) {
 			result.addError(ErrorMessages.FILE_NULL);
@@ -65,7 +70,8 @@ public class CsvReader<B> implements Reader<B> {
 		}
 		try {
 			fileInputStream = new FileInputStream(file);
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
+			LOGGER.error(e.getMessage(), e);
 			fileInputStream = new NullInputStream(0);
 		}
 		return fileInputStream;
@@ -74,9 +80,9 @@ public class CsvReader<B> implements Reader<B> {
 	@Override
 	public CsvReadResult<B> convert(List<File> files,
 			CsvReaderConfiguration configuration) throws EasyCsvException {
-		CsvReadResult<B> result = new CsvReadResult<B>();
-		for (File file : files) {
-			CsvReadResult<B> subResult = convert(file, configuration);
+		final CsvReadResult<B> result = new CsvReadResult<B>();
+		for (final File file : files) {
+			final CsvReadResult<B> subResult = convert(file, configuration);
 			result.addBeans(subResult.getBeans());
 			result.addErrors(subResult.getErrors());
 		}
@@ -87,8 +93,8 @@ public class CsvReader<B> implements Reader<B> {
 	public CsvReadResult<B> convert(InputStream data,
 			CsvReaderConfiguration configuration) throws EasyCsvException {
 		configuration.setBeanType(configuration.getBeanType());
-		CsvBeanMapper beanMapper = new DefaultCsvBeanMapper(configuration);
-		CsvBeanMapping mapping = beanMapper.createMapping();
+		final CsvBeanMapper beanMapper = new DefaultCsvBeanMapper(configuration);
+		final CsvBeanMapping mapping = beanMapper.createMapping();
 		configuration.setCsvBeanMapping(mapping);
 
 		return processInputData(data, configuration);
@@ -96,8 +102,8 @@ public class CsvReader<B> implements Reader<B> {
 
 	private CsvReadResult<B> processInputData(InputStream data,
 			CsvReaderConfiguration configuration) throws EasyCsvException {
-		CsvParser.CsvParserBuilder<B> csvParserBuilder = new CsvParser.CsvParserBuilder<B>();
-		CsvParser<B> parser = csvParserBuilder
+		final CsvParser.CsvParserBuilder<B> csvParserBuilder = new CsvParser.CsvParserBuilder<B>();
+		final CsvParser<B> parser = csvParserBuilder
 				.setCellProcessorFactory(cellProcessorFactory)
 				.setConfiguration(configuration).setData(data).build();
 		return parser.parse();

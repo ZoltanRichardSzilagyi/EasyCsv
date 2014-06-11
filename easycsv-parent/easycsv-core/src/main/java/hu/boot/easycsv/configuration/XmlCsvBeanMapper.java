@@ -10,6 +10,7 @@ import javax.xml.bind.Unmarshaller;
 
 public class XmlCsvBeanMapper implements CsvBeanMapper {
 
+	private static final String UNABLE_TO_READ_XML_CONFIGURATION = "Unable to read xml configuration.";
 	private InputStream configurationData = null;
 
 	public XmlCsvBeanMapper(InputStream configurationData) {
@@ -18,21 +19,19 @@ public class XmlCsvBeanMapper implements CsvBeanMapper {
 
 	@Override
 	public CsvBeanMapping createMapping() throws EasyCsvException {
-		XmlCsvBeanConfiguration configuration = unmarshallConfiguration();
-		CsvBeanMapping beanMapping = new CsvBeanMapping(
-				configuration.getMappings());
-		return beanMapping;
+		final XmlCsvBeanConfiguration configuration = unmarshallConfiguration();
+		return new CsvBeanMapping(configuration.getMappings());
 	}
 
 	private XmlCsvBeanConfiguration unmarshallConfiguration()
 			throws EasyCsvException {
-		Unmarshaller unmarshaller = createJAXBUnmarshaller();
+		final Unmarshaller unmarshaller = createJAXBUnmarshaller();
 		XmlCsvBeanConfiguration configuration = null;
 		try {
 			configuration = (XmlCsvBeanConfiguration) unmarshaller
 					.unmarshal(configurationData);
-		} catch (JAXBException e) {
-			throw new EasyCsvException("Unable to read xml configuration.", e);
+		} catch (final JAXBException e) {
+			throw new EasyCsvException(UNABLE_TO_READ_XML_CONFIGURATION, e);
 		}
 		return configuration;
 	}
@@ -40,11 +39,11 @@ public class XmlCsvBeanMapper implements CsvBeanMapper {
 	private Unmarshaller createJAXBUnmarshaller() throws EasyCsvException {
 		Unmarshaller unmarshaller = null;
 		try {
-			JAXBContext jaxbContext = JAXBContext
+			final JAXBContext jaxbContext = JAXBContext
 					.newInstance(XmlCsvBeanConfiguration.class);
 			unmarshaller = jaxbContext.createUnmarshaller();
-		} catch (JAXBException e) {
-			throw new EasyCsvException("Unable to read xml configuration.", e);
+		} catch (final JAXBException e) {
+			throw new EasyCsvException(UNABLE_TO_READ_XML_CONFIGURATION, e);
 		}
 		return unmarshaller;
 	}

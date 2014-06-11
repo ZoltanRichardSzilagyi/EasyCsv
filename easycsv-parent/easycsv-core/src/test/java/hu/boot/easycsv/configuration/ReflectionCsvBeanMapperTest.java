@@ -8,13 +8,20 @@ import java.lang.reflect.Field;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReflectionCsvBeanMapperTest {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(ReflectionCsvBeanMapper.class);
+
 	@Test
 	public void testMapping() throws EasyCsvException {
-		ReflectionCsvBeanMapper mapper = new ReflectionCsvBeanMapper(User.class);
-		CsvBeanMapping mapping = mapper.createMapping();
+		final ReflectionCsvBeanMapper mapper = new ReflectionCsvBeanMapper(
+				User.class);
+		final CsvBeanMapping mapping = mapper.createMapping();
+		logger.info(mapping.getColumnsNum() + " mapping columns num");
 		testColumnsAndAnnotatedFieldsAreEquals(mapping);
 		testMappingProperties(mapping);
 
@@ -34,13 +41,14 @@ public class ReflectionCsvBeanMapperTest {
 	}
 
 	private void testColumnsAndAnnotatedFieldsAreEquals(CsvBeanMapping mapping) {
-		Field[] fields = User.class.getDeclaredFields();
+		final Field[] fields = User.class.getDeclaredFields();
 		Integer csvColumnsNum = 0;
-		for (Field field : fields) {
+		for (final Field field : fields) {
 			if (field.getAnnotation(CsvColumn.class) != null) {
 				csvColumnsNum++;
 			}
 		}
+		logger.info(csvColumnsNum + " native");
 		Assert.assertEquals(csvColumnsNum, mapping.getColumnsNum());
 	}
 

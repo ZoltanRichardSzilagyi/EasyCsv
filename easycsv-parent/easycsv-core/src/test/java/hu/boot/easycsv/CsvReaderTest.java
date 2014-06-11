@@ -18,11 +18,12 @@ import org.junit.Test;
 
 public class CsvReaderTest {
 
-	private CsvReader<User> reader = new CsvReader<User>();
+	private final CsvReader<User> reader = new CsvReader<User>();
 
 	@Test
 	public void readerInputValidationTestFileNull() throws EasyCsvException {
-		CsvReadResult<User> result = reader.convert((File) null, User.class);
+		final CsvReadResult<User> result = reader.convert((File) null,
+				User.class);
 		Assert.assertEquals(2, result.getErrors().size());
 		Assert.assertEquals(ErrorMessages.FILE_NULL, result.getErrors().get(1)
 				.getMessage());
@@ -30,14 +31,14 @@ public class CsvReaderTest {
 
 	@Test
 	public void readerInputValidationTestFileMissing() throws EasyCsvException {
-		File missingFile = new File("T:/random/folder/data.csv");
+		final File missingFile = new File("T:/random/folder/data.csv");
 
-		CsvReadResult<User> sampleResult = new CsvReadResult<User>();
+		final CsvReadResult<User> sampleResult = new CsvReadResult<User>();
 		sampleResult.addError(ErrorMessages.FILE_MISSING,
 				missingFile.getAbsolutePath());
 
-		CsvReadResult<User> testResult = reader
-				.convert(missingFile, User.class);
+		final CsvReadResult<User> testResult = reader.convert(missingFile,
+				User.class);
 		Assert.assertEquals(2, testResult.getErrors().size());
 
 		Assert.assertEquals(sampleResult.getErrors().get(0).getMessage(),
@@ -46,28 +47,29 @@ public class CsvReaderTest {
 
 	@Test
 	public void inputDataTest() throws EasyCsvException {
-		CsvReadResult<User> result = reader.convert(new NullInputStream(0),
-				User.class);
+		final CsvReadResult<User> result = reader.convert(
+				new NullInputStream(0), User.class);
 
 		Assert.assertEquals(1, result.getErrors().size());
 		Assert.assertEquals(ErrorMessages.EMPTY_CSV, result.getErrors().get(0)
 				.getMessage());
-		List<User> users = result.getBeans();
+		final List<User> users = result.getBeans();
 		Assert.assertEquals(0, users.size());
 	}
 
 	@Test
 	public void rowValidationTest() throws EasyCsvException {
-		CsvReadResult<User> sampleResult = new CsvReadResult<User>();
+		final CsvReadResult<User> sampleResult = new CsvReadResult<User>();
 		sampleResult.addError(ErrorMessages.INVALID_CELLS_NUM, 1, 2, 3);
 
-		User user = new User();
+		final User user = new User();
 		user.setName("john");
 		user.setAge(28);
 
-		String data = "name,age" + "\r\n" + "john,28";
-		ByteArrayInputStream stream = new ByteArrayInputStream(data.getBytes());
-		CsvReadResult<User> result = reader.convert(stream, User.class);
+		final String data = "name,age" + "\r\n" + "john,28";
+		final ByteArrayInputStream stream = new ByteArrayInputStream(
+				data.getBytes());
+		final CsvReadResult<User> result = reader.convert(stream, User.class);
 		Assert.assertEquals(1, result.getErrors().size());
 		Assert.assertEquals(sampleResult.getErrors().get(0).getMessage(),
 				result.getErrors().get(0).getMessage());
@@ -75,23 +77,25 @@ public class CsvReaderTest {
 
 	@Test
 	public void parsedDataTest() throws EasyCsvException {
-		CsvReadResult<User> sampleResult = new CsvReadResult<User>();
+		final CsvReadResult<User> sampleResult = new CsvReadResult<User>();
 		sampleResult.addError(ErrorMessages.INVALID_CELLS_NUM, 1, 2, 3);
 
-		User sampleUser = new User();
+		final User sampleUser = new User();
 		sampleUser.setName("john");
 		sampleUser.setAge(28);
-		DateTime dateTime = new DateTime();
+		final DateTime dateTime = new DateTime();
 		sampleUser.setBirthDate(dateTime.toDate());
 
-		String data = "name,age" + "\r\n" + "\"john\",28,"
+		final String data = "name,age" + "\r\n" + "\"john\",28,"
 				+ dateTime.toString(ISODateTimeFormat.dateTime());
 
-		ByteArrayInputStream stream = new ByteArrayInputStream(data.getBytes());
-		CsvReadResult<User> result = reader.convert(stream, User.class);
+		final ByteArrayInputStream stream = new ByteArrayInputStream(
+				data.getBytes());
+		final CsvReadResult<User> result = reader.convert(stream, User.class);
+		Assert.assertEquals(0, result.getErrors().size());
 		Assert.assertEquals(1, result.getBeans().size());
 
-		User readedUser = result.getBeans().get(0);
+		final User readedUser = result.getBeans().get(0);
 		Assert.assertEquals(sampleUser.getName(), readedUser.getName());
 		Assert.assertEquals(sampleUser.getAge(), readedUser.getAge());
 		Assert.assertEquals(sampleUser.getBirthDate(),
@@ -99,11 +103,11 @@ public class CsvReaderTest {
 	}
 
 	public void performanceTest() {
-		List<Order> orders = createOrder(10000);
+		final List<Order> orders = createOrder(10000);
 	}
 
 	private List<Order> createOrder(int ordersNum) {
-		List<Order> orders = new ArrayList<Order>(ordersNum);
+		final List<Order> orders = new ArrayList<Order>(ordersNum);
 		for (int i = 0; i < ordersNum; i++) {
 			orders.add(createOrder());
 		}
@@ -111,7 +115,7 @@ public class CsvReaderTest {
 	}
 
 	private Order createOrder() {
-		Order order = new Order();
+		final Order order = new Order();
 		order.setComment(getRandomString(120));
 		order.setCustomerFirstName(getRandomString(20));
 		order.setCustomerLastName(getRandomString(20));
@@ -126,7 +130,7 @@ public class CsvReaderTest {
 	}
 
 	private String getRandomString(int max) {
-		int value = RandomUtils.nextInt(5, max);
+		final int value = RandomUtils.nextInt(5, max);
 		return RandomStringUtils.randomAlphabetic(value);
 
 	}

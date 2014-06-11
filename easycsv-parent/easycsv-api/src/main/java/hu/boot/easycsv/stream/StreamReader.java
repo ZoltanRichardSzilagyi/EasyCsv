@@ -4,9 +4,9 @@ import java.io.IOException;
 
 public interface StreamReader {
 
-	public Boolean isEmpty() throws IOException;
+	public Boolean isEmpty();
 
-	public String readNextRow();
+	public String readNextRow() throws IOException;
 
 	public void close();
 

@@ -6,45 +6,52 @@ import java.util.Map;
 import java.util.Set;
 
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("rawtypes")
 public class CellProcessorFactory {
 
-	private Map<Class<?>, CellProcessorHolder> cellprocessors = new HashMap<Class<?>, CellProcessorHolder>();
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(CellProcessorFactory.class);
+
+	private final Map<Class<?>, CellProcessorHolder> cellprocessors = new HashMap<Class<?>, CellProcessorHolder>();
 
 	public CellProcessorFactory() {
 		initCellProcessors();
 	}
 
 	private void initCellProcessors() {
-		Reflections reflections = new Reflections(
+		final Reflections reflections = new Reflections(
 				"hu.boot.easycsv.cellprocessor");
-		Set<Class<? extends CellProcessor>> cellprocessorClassess = reflections
+		final Set<Class<? extends CellProcessor>> cellprocessorClassess = reflections
 				.getSubTypesOf(CellProcessor.class);
-		for (Class<? extends CellProcessor> cellprocessorType : cellprocessorClassess) {
-			ParameterizedType type = (ParameterizedType) cellprocessorType
+		for (final Class<? extends CellProcessor> cellprocessorType : cellprocessorClassess) {
+			final ParameterizedType type = (ParameterizedType) cellprocessorType
 					.getGenericInterfaces()[0];
-			Class<?> cellProcessorGenericType = (Class<?>) type
+			final Class<?> cellProcessorGenericType = (Class<?>) type
 					.getActualTypeArguments()[0];
-			CellProcessorHolder cellProcessorHolder = new CellProcessorHolder(
+			final CellProcessorHolder cellProcessorHolder = new CellProcessorHolder(
 					cellprocessorType);
 			cellprocessors.put(cellProcessorGenericType, cellProcessorHolder);
 		}
 	}
 
-	public CellProcessor<?> getCellProcessor(Class<?> type) {
-		CellProcessorHolder cellProcessorHolder = cellprocessors.get(type);
+	public CellProcessor getCellProcessor(Class<?> type) {
+		final CellProcessorHolder cellProcessorHolder = cellprocessors
+				.get(type);
 		if (cellProcessorHolder == null) {
 			return null;
 		}
-		CellProcessor<?> cellProcessor = null;
+		CellProcessor cellProcessor = null;
 		cellProcessor = cellProcessorHolder.getCellProcessorInstance();
 		if (cellProcessor == null) {
 			try {
-				cellProcessor = cellProcessorHolder.getCellprocessorType()
-						.newInstance();
+				cellProcessor = (CellProcessor) cellProcessorHolder
+						.getCellprocessorType().newInstance();
 				cellProcessorHolder.setCellProcessorInstance(cellProcessor);
-			} catch (Exception e) {
+			} catch (final Exception e) {
+				LOGGER.error(e.getMessage(), e);
 				return null;
 			}
 		}

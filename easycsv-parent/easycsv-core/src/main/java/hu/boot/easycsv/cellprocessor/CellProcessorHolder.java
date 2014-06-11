@@ -11,11 +11,11 @@ public class CellProcessorHolder {
 		this.cellprocessorType = cellprocessorType2;
 	}
 
-	public Class<? extends CellProcessor> getCellprocessorType() {
+	public Class getCellprocessorType() {
 		return cellprocessorType;
 	}
 
-	public CellProcessor<?> getCellProcessorInstance() {
+	public CellProcessor getCellProcessorInstance() {
 		return cellProcessorInstance;
 	}
 

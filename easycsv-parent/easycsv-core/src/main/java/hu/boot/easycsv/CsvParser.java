@@ -11,11 +11,18 @@ import hu.boot.easycsv.stream.StreamReader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class CsvParser<B> {
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(CsvParser.class);
 
 	private final CsvReaderConfiguration configuration;
 
@@ -47,7 +54,7 @@ final class CsvParser<B> {
 				return result;
 			}
 			parseRows();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new EasyCsvException("Unable to parse source data.", e);
 		} finally {
 			closeInputs();
@@ -64,45 +71,77 @@ final class CsvParser<B> {
 		return false;
 	}
 
-	private void parseRows() throws Exception {
-		String row = null;
+	private void parseRows() {
+
 		readHeaderIfNecessary();
-		while ((row = csvStreamReader.readNextRow()) != null) {
+
+		while (true) {
+			String row = null;
+			try {
+				row = csvStreamReader.readNextRow();
+			} catch (final IOException e) {
+				LOGGER.error(e.getMessage(), e);
+				result.addError("Unable to read next line!");
+			}
+			if (row == null) {
+				break;
+			}
 			lineNumber++;
-			runRowProcessors(row);
-			processRow(row);
+			final String preprocessedRow = runRowProcessors(row);
+			processRow(preprocessedRow);
 
 		}
 	}
 
-	private void readHeaderIfNecessary() throws IOException {
+	private void readHeaderIfNecessary() {
 		if (configuration.getContainsHeader()) {
-			csvStreamReader.readNextRow();
+			try {
+				csvStreamReader.readNextRow();
+			} catch (final IOException e) {
+				LOGGER.error(e.getMessage(), e);
+				result.addError("Unable to read header!");
+			}
 		}
 	}
 
-	private void runRowProcessors(String row) {
-		if (configuration.getRowProcessors().size() == 0) {
-			return;
+	private String runRowProcessors(String row) {
+		if (CollectionUtils.isEmpty(configuration.getRowProcessors())) {
+			return row;
 		}
-		for (RowProcessor rowProcessor : configuration.getRowProcessors()) {
-			row = rowProcessor.process(row);
+		String processedRow = row;
+		for (final RowProcessor rowProcessor : configuration.getRowProcessors()) {
+			processedRow = rowProcessor.process(processedRow);
 		}
+		return processedRow;
 	}
 
-	private void processRow(String row) throws Exception {
-		String[] cells = splitRow(row);
+	private void processRow(String row) {
+		final String[] cells = splitRow(row);
 		if (isRowValid(cells)) {
 			processRow(cells);
 		}
 	}
 
-	private void processRow(String[] cells) throws Exception {
+	private void processRow(String[] cells) {
 		Integer index = 0;
-		B bean = createBeanInstance();
+		B bean = null;
+		try {
+			bean = createBeanInstance();
+		} catch (final Exception e) {
+			LOGGER.error(e.getMessage(), e);
+			result.addError("Error during bean instantiation");
+			return;
+		}
+
 		for (String cellValue : cells) {
 			cellValue = parseCellValue(cellValue);
-			bean = processRow(bean, index, cellValue);
+			try {
+				bean = processRow(bean, index, cellValue);
+			} catch (final Exception e) {
+				LOGGER.error(e.getMessage(), e);
+				result.addError("Unable to process row: {}, error: ",
+						lineNumber, e.getMessage());
+			}
 			index++;
 		}
 		result.addBean(bean);
@@ -131,12 +170,13 @@ final class CsvParser<B> {
 	}
 
 	private B processRow(B bean, Integer index, String cellValue)
-			throws Exception {
-		String columnName = csvHeaderColumns[index];
-		CsvColumnBeanFieldMapping fieldMapping = mapping
+			throws IllegalAccessException, InvocationTargetException,
+			NoSuchMethodException {
+		final String columnName = csvHeaderColumns[index];
+		final CsvColumnBeanFieldMapping fieldMapping = mapping
 				.getMappingByColumnName(columnName);
-		String fieldName = fieldMapping.getField().getName();
-		Object processedValue = convertRawValue(fieldMapping, cellValue);
+		final String fieldName = fieldMapping.getField().getName();
+		final Object processedValue = convertRawValue(fieldMapping, cellValue);
 		PropertyUtils.setProperty(bean, fieldName, processedValue);
 		return bean;
 	}
@@ -151,23 +191,28 @@ final class CsvParser<B> {
 	}
 
 	private Object convertRawValue(CsvColumnBeanFieldMapping fieldMapping,
-			String value) throws Exception {
-		Class<?> fieldType = fieldMapping.getField().getType();
-		CellProcessor<?> cellProcessor = cellProcessorFactory
+			String value) {
+		final Class<?> fieldType = fieldMapping.getField().getType();
+		final CellProcessor<?> cellProcessor = cellProcessorFactory
 				.getCellProcessor(fieldType);
-		return cellProcessor.process(fieldMapping, value);
+		try {
+			return cellProcessor.process(fieldMapping, value);
+		} catch (final Exception e) {
+			result.addError("Unable to convert row to object, line: {}",
+					lineNumber);
+			LOGGER.error(e.getMessage(), e);
+			return null;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private B createBeanInstance() throws Exception {
-		B bean = (B) configuration.getBeanType().newInstance();
-		return bean;
+	private B createBeanInstance() throws InstantiationException,
+			IllegalAccessException {
+		return (B) configuration.getBeanType().newInstance();
 	}
 
 	private String[] splitRow(String row) {
-		String[] lineValues = StringUtils.split(row,
-				configuration.getDelimiterChar());
-		return lineValues;
+		return StringUtils.split(row, configuration.getDelimiterChar());
 	}
 
 	private void closeInputs() {

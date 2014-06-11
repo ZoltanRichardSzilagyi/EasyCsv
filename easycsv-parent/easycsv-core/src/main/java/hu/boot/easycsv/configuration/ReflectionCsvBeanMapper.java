@@ -8,7 +8,13 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ReflectionCsvBeanMapper implements CsvBeanMapper {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(ReflectionCsvBeanMapper.class);
 
 	private Class<?> beanType;
 
@@ -18,9 +24,10 @@ public class ReflectionCsvBeanMapper implements CsvBeanMapper {
 
 	@Override
 	public CsvBeanMapping createMapping() throws EasyCsvException {
-		List<CsvColumnBeanFieldMapping> mappings = new ArrayList<CsvColumnBeanFieldMapping>();
-		Field[] beanFields = beanType.getDeclaredFields();
-		for (Field field : beanFields) {
+		final List<CsvColumnBeanFieldMapping> mappings = new ArrayList<CsvColumnBeanFieldMapping>();
+		final Field[] beanFields = beanType.getDeclaredFields();
+		for (final Field field : beanFields) {
+			logger.info("field: " + field.getName());
 			processField(mappings, field);
 		}
 		return new CsvBeanMapping(mappings);
@@ -31,14 +38,14 @@ public class ReflectionCsvBeanMapper implements CsvBeanMapper {
 		if (field.getAnnotation(CsvTransient.class) != null) {
 			return;
 		}
-		CsvColumnBeanFieldMapping mapping = new CsvColumnBeanFieldMapping();
+		final CsvColumnBeanFieldMapping mapping = new CsvColumnBeanFieldMapping();
 		mapping.setField(field);
 		createMapping(field, mapping);
 		mappings.add(mapping);
 	}
 
 	private void createMapping(Field field, CsvColumnBeanFieldMapping mapping) {
-		CsvColumn columnMeta = field.getAnnotation(CsvColumn.class);
+		final CsvColumn columnMeta = field.getAnnotation(CsvColumn.class);
 		if (columnMeta != null) {
 			processAnnotationConfiguredField(mapping, columnMeta);
 		} else {
@@ -54,7 +61,7 @@ public class ReflectionCsvBeanMapper implements CsvBeanMapper {
 	}
 
 	private void processNotConfiguredField(CsvColumnBeanFieldMapping mapping) {
-		Field field = mapping.getField();
+		final Field field = mapping.getField();
 		mapping.setColumnName(field.getName());
 		mapping.setName(mapping.getColumnName());
 	}
