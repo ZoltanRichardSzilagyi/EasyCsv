@@ -37,17 +37,21 @@ public class CsvReadResult<B> {
 	}
 
 	public void addError(String message) {
-		Error error = new Error(message);
+		final Error error = new Error(message);
 		errors.add(error);
 	}
 
 	public void addError(String message, Object... args) {
 		String replacedMessage = message;
-		for (Object arg : args) {
+		for (final Object arg : args) {
+			String argParam = "''";
+			if (arg != null) {
+				argParam = arg.toString();
+			}
 			replacedMessage = StringUtils.replaceOnce(replacedMessage, "{}",
-					arg.toString());
+					argParam);
 		}
-		Error error = new Error(replacedMessage);
+		final Error error = new Error(replacedMessage);
 		errors.add(error);
 	}
 

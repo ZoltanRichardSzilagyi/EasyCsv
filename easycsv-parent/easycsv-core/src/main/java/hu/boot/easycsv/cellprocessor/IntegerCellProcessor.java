@@ -7,8 +7,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 public class IntegerCellProcessor implements CellProcessor<Integer> {
 
 	@Override
-	public Integer process(CsvColumnBeanFieldMapping mapping, String value)
-			throws Exception {
+	public Integer process(CsvColumnBeanFieldMapping mapping, String value) {
 		return NumberUtils.toInt(value);
 	}
 

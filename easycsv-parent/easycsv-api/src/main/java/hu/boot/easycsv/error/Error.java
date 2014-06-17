@@ -2,12 +2,13 @@ package hu.boot.easycsv.error;
 
 public class Error {
 
-	private Integer lineNumber;
+	private final Integer lineNumber;
 
 	private final String message;
 
 	public Error(String message) {
 		this.message = message;
+		lineNumber = -1;
 	}
 
 	public Error(Integer lineNumber, String message) {

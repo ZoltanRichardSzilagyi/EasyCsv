@@ -6,7 +6,8 @@ public interface CsvMappingConfiguration {
 
 	public InputStream getXmlMappingConfiguration();
 
-	public Class<?> getBeanType();
+	@SuppressWarnings("rawtypes")
+	public Class getBeanType();
 
 	public CsvBeanMapping getCsvBeanMapping();
 

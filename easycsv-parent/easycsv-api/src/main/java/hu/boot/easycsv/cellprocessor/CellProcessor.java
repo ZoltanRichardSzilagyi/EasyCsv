@@ -4,7 +4,6 @@ import hu.boot.easycsv.configuration.CsvColumnBeanFieldMapping;
 
 public interface CellProcessor<T> {
 
-	public T process(CsvColumnBeanFieldMapping mapping, String value)
-			throws Exception;
+	public T process(CsvColumnBeanFieldMapping mapping, String value);
 
 }

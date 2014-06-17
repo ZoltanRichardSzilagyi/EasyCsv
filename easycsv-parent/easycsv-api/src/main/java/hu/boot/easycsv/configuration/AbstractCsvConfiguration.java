@@ -37,8 +37,9 @@ public abstract class AbstractCsvConfiguration implements
 		this.xmlMappingConfiguration = xmlMappingConfiguration;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Class<?> getBeanType() {
+	public Class getBeanType() {
 		return beanType;
 	}
 
@@ -46,6 +47,7 @@ public abstract class AbstractCsvConfiguration implements
 		this.beanType = beanType;
 	}
 
+	@Override
 	public CsvBeanMapping getCsvBeanMapping() {
 		return csvBeanMapping;
 	}

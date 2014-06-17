@@ -12,9 +12,8 @@ import org.joda.time.format.ISODateTimeFormat;
 public class DateCellProcessor implements CellProcessor<Date> {
 
 	@Override
-	public Date process(CsvColumnBeanFieldMapping mapping, String value)
-			throws Exception {
-		DateTimeFormatter dateTimeFormatter = getDateFormatter(mapping);
+	public Date process(CsvColumnBeanFieldMapping mapping, String value) {
+		final DateTimeFormatter dateTimeFormatter = getDateFormatter(mapping);
 		return dateTimeFormatter.parseDateTime(value).toDate();
 	}
 

@@ -8,13 +8,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ReflectionCsvBeanMapper implements CsvBeanMapper {
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(ReflectionCsvBeanMapper.class);
 
 	private Class<?> beanType;
 
@@ -27,7 +21,6 @@ public class ReflectionCsvBeanMapper implements CsvBeanMapper {
 		final List<CsvColumnBeanFieldMapping> mappings = new ArrayList<CsvColumnBeanFieldMapping>();
 		final Field[] beanFields = beanType.getDeclaredFields();
 		for (final Field field : beanFields) {
-			logger.info("field: " + field.getName());
 			processField(mappings, field);
 		}
 		return new CsvBeanMapping(mappings);
@@ -36,6 +29,9 @@ public class ReflectionCsvBeanMapper implements CsvBeanMapper {
 	private void processField(List<CsvColumnBeanFieldMapping> mappings,
 			Field field) {
 		if (field.getAnnotation(CsvTransient.class) != null) {
+			return;
+		}
+		if (field.isSynthetic()) {
 			return;
 		}
 		final CsvColumnBeanFieldMapping mapping = new CsvColumnBeanFieldMapping();
@@ -55,6 +51,7 @@ public class ReflectionCsvBeanMapper implements CsvBeanMapper {
 
 	private void processAnnotationConfiguredField(
 			CsvColumnBeanFieldMapping mapping, CsvColumn columnMapping) {
+		mapping.setName(columnMapping.name());
 		mapping.setColumnName(columnMapping.name());
 		mapping.setFormat(columnMapping.format());
 		mapping.setRequired(columnMapping.required());

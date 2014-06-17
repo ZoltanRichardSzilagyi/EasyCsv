@@ -7,27 +7,22 @@ import hu.boot.easycsv.bean.CsvColumn;
 import java.lang.reflect.Field;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ReflectionCsvBeanMapperTest {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(ReflectionCsvBeanMapper.class);
+	private ReflectionCsvBeanMapper mapper;
+	private CsvBeanMapping mapping;
 
-	@Test
+	@Before
 	public void testMapping() throws EasyCsvException {
-		final ReflectionCsvBeanMapper mapper = new ReflectionCsvBeanMapper(
-				User.class);
-		final CsvBeanMapping mapping = mapper.createMapping();
-		logger.info(mapping.getColumnsNum() + " mapping columns num");
-		testColumnsAndAnnotatedFieldsAreEquals(mapping);
-		testMappingProperties(mapping);
-
+		mapper = new ReflectionCsvBeanMapper(User.class);
+		mapping = mapper.createMapping();
 	}
 
-	private void testMappingProperties(CsvBeanMapping mapping) {
+	@Test
+	public void testMappingProperties() {
 		CsvColumnBeanFieldMapping nameColumnMapping = mapping
 				.getMappingByColumnName("name");
 		Assert.assertNotNull(nameColumnMapping);
@@ -38,9 +33,21 @@ public class ReflectionCsvBeanMapperTest {
 		nameColumnMapping = mapping.getMappingByColumnName("birth-date");
 		Assert.assertNotNull(nameColumnMapping);
 		Assert.assertEquals(false, nameColumnMapping.getRequired());
+
+		nameColumnMapping = mapping.getColumnField(0);
+		Assert.assertNotNull(nameColumnMapping);
+		Assert.assertEquals("name", nameColumnMapping.getName());
+
+		nameColumnMapping = mapping.getColumnField(-100);
+		Assert.assertNull(nameColumnMapping);
+
+		nameColumnMapping = mapping.getColumnField(100);
+		Assert.assertNull(nameColumnMapping);
+
 	}
 
-	private void testColumnsAndAnnotatedFieldsAreEquals(CsvBeanMapping mapping) {
+	@Test
+	public void testColumnsAndAnnotatedFieldsAreEquals() {
 		final Field[] fields = User.class.getDeclaredFields();
 		Integer csvColumnsNum = 0;
 		for (final Field field : fields) {
@@ -48,7 +55,6 @@ public class ReflectionCsvBeanMapperTest {
 				csvColumnsNum++;
 			}
 		}
-		logger.info(csvColumnsNum + " native");
 		Assert.assertEquals(csvColumnsNum, mapping.getColumnsNum());
 	}
 

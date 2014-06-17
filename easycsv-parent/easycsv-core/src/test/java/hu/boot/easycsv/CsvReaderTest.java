@@ -37,8 +37,9 @@ public class CsvReaderTest {
 		sampleResult.addError(ErrorMessages.FILE_MISSING,
 				missingFile.getAbsolutePath());
 
-		final CsvReadResult<User> testResult = reader.convert(missingFile,
-				User.class);
+		CsvReadResult<User> testResult = null;
+		testResult = reader.convert(missingFile, User.class);
+
 		Assert.assertEquals(2, testResult.getErrors().size());
 
 		Assert.assertEquals(sampleResult.getErrors().get(0).getMessage(),
